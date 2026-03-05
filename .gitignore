@@ -1,0 +1,67 @@
+# UE4 项目 .gitignore
+
+# Visual Studio 文件
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.VC.db
+*.VC.opendb
+
+# UE4 编译输出
+Binaries/
+Intermediate/
+DerivedDataCache/
+Build/
+
+# UE4 保存文件
+Saved/Autosaves/
+Saved/Backup/
+Saved/Logs/
+Saved/Crashes/
+Saved/Config/Windows*/
+Saved/*.png
+Saved/*.log
+
+# UE4 插件编译输出
+Plugins/*/Binaries/
+Plugins/*/Intermediate/
+
+# 内容文件（可选，根据需要调整）
+# Content/StarterContent/
+
+# Windows 系统文件
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS 系统文件
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# 临时文件
+*.tmp
+*.temp
+*.log
+*.cache
+
+# 用户特定文件
+*.opensdf
+*.sdf
+*.suo
+*.user
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# 其他
+*.bak
+*.swp
+*~
