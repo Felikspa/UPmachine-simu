@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注塑机数字孪生系统 - AirCity Web</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            overflow: hidden;
+            background: #1a1a1a;
+        }
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        #hud-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-size: 14px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            min-width: 300px;
+            z-index: 100;
+        }
+        .hud-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #00ff88;
+        }
+        .hud-item {
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        .hud-label {
+            color: #aaa;
+        }
+        .hud-value {
+            font-weight: bold;
+        }
+        .status-running {
+            color: #00ff00;
+        }
+        .status-stopped {
+            color: #ff0000;
+        }
+        .temp-normal {
+            color: #00ff00;
+        }
+        .temp-warning {
+            color: #ffaa00;
+        }
+        .temp-danger {
+            color: #ff0000;
+        }
+        #control-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            color: white;
+            z-index: 100;
+        }
+        .control-button {
+            background: #00ff88;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .control-button:hover {
+            background: #00cc66;
+        }
+        .control-button.stop {
+            background: #ff4444;
+            color: white;
+        }
+        .control-button.stop:hover {
+            background: #cc0000;
+        }
+        #connection-status {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 5px;
+            color: white;
+            z-index: 100;
+        }
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-connected {
+            background: #00ff00;
+        }
+        .status-disconnected {
+            background: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <div id="hud-overlay">
+        <div class="hud-title">设备状态 - <span id="device-id">machine01</span></div>
+        <div class="hud-item">
+            <span class="hud-label">运行状态:</span>
+            <span class="hud-value" id="running-status">停止</span>
+        </div>
+        <div class="hud-item">
+            <span class="hud-label">转速 (RPM):</span>
+            <span class="hud-value" id="rpm-value">0</span>
+        </div>
+        <div class="hud-item">
+            <span class="hud-label">料筒温度 (°C):</span>
+            <span class="hud-value" id="barrel-temp">0</span>
+        </div>
+        <div class="hud-item">
+            <span class="hud-label">模具温度 (°C):</span>
+            <span class="hud-value" id="mold-temp">0</span>
+        </div>
+        <div class="hud-item">
+            <span class="hud-label">注射压力 (MPa):</span>
+            <span class="hud-value" id="injection-pressure">0</span>
+        </div>
+        <div class="hud-item">
+            <span class="hud-label">螺杆位置 (mm):</span>
+            <span class="hud-value" id="screw-position">0</span>
+        </div>
+        <div class="hud-item">
+            <span class="hud-label">生产计数:</span>
+            <span class="hud-value" id="production-count">0</span>
+        </div>
+    </div>
+
+    <div id="control-panel">
+        <div class="hud-title">设备控制</div>
+        <button class="control-button" id="start-btn">启动机器</button>
+        <button class="control-button stop" id="stop-btn">停止机器</button>
+        <div style="margin-top: 10px;">
+            <label style="display: block; margin-bottom: 5px;">设置转速:</label>
+            <input type="number" id="rpm-input" value="1200" min="0" max="3000"
+                   style="width: 100px; padding: 5px; border-radius: 3px; border: none;">
+            <button class="control-button" id="set-rpm-btn">设置</button>
+        </div>
+    </div>
+
+    <div id="connection-status">
+        <span class="status-dot status-disconnected" id="status-dot"></span>
+        <span id="status-text">未连接</span>
+    </div>
+
+    <script type="module" src="/src/index.js"></script>
+</body>
+</html>

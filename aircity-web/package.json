@@ -1,0 +1,19 @@
+{
+  "name": "injection-molding-digital-twin",
+  "version": "1.0.0",
+  "description": "注塑机数字孪生系统 - AirCity Web 平台版本",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "mqtt": "^5.3.5",
+    "three": "^0.160.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.12"
+  }
+}
