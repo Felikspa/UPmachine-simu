@@ -8,6 +8,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MqttClient } from './mqtt-client.js';
 import { DeviceManager } from './device-manager.js';
 import { HUDDisplay } from './hud-display.js';
+import { loadRealMachineModel } from './model-generator.js';
 
 class DigitalTwinApp {
     constructor() {
@@ -109,13 +110,19 @@ class DigitalTwinApp {
     }
 
     /**
-     * 加载机器模型
+     * 加载机器模型 - 从 UE4 导出的真实 GLB 文件
      */
     async loadMachineModel() {
-        return new Promise((resolve, reject) => {
-            // 创建临时的测试模型（实际项目中应加载 GLTF 模型）
-            console.log('[App] 创建测试机器模型...');
+        try {
+            console.log('[App] 🚀 开始加载真实GLB模型（31MB）...');
+            const machineGroup = await loadRealMachineModel();
+            this.scene.add(machineGroup);
+            console.log('[App] ✅ 真实机器模型已加载完成');
+        } catch (error) {
+            console.error('[App] ❌ 加载真实模型失败:', error.message);
+            console.log('[App] 使用测试模型作为备用');
 
+            // 备用方案：创建测试模型
             const machineGroup = new THREE.Group();
             machineGroup.name = 'machine01';
             machineGroup.userData = {
@@ -123,69 +130,42 @@ class DigitalTwinApp {
                 deviceId: 'machine01'
             };
 
-            // 创建机器主体
-            const bodyGeometry = new THREE.BoxGeometry(2, 1, 1);
-            const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0x666666 });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.name = 'MachineBody';
-            machineGroup.add(body);
-
-            // 创建 6 个螺杆部件
-            for (let i = 0; i < 6; i++) {
-                const screwGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.8, 16);
-                const screwMaterial = new THREE.MeshStandardMaterial({ color: 0xffaa00 });
-                const screw = new THREE.Mesh(screwGeometry, screwMaterial);
-                screw.name = `Screw_0${i + 1}`;
-                screw.position.set(-0.5 + i * 0.2, 0.3, 0);
+            // 创建 7 个螺杆（红色圆柱）
+            const screwNames = [
+                'mechine_1_Zhushezhen', 'mechine_1_Zhushezhen_001', 'mechine_1_Zhushezhen_002',
+                'mechine_1_Zhushezhen_003', 'mechine_1_Zhushezhen_004', 'mechine_1_Zhushezhen_005',
+                'mechine_1_Zhushezhen_006'
+            ];
+            screwNames.forEach((name, i) => {
+                const screw = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.1, 0.1, 1, 8),
+                    new THREE.MeshStandardMaterial({ color: 0xff0000 })
+                );
+                screw.name = name;
+                screw.position.set(i * 0.3 - 1, 1, 0);
                 screw.rotation.z = Math.PI / 2;
                 machineGroup.add(screw);
-            }
+            });
 
-            // 创建 14 个注射单元（简化为 3 个代表）
-            for (let i = 0; i < 3; i++) {
-                const unitGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.5);
-                const unitMaterial = new THREE.MeshStandardMaterial({ color: 0x4444ff });
-                const unit = new THREE.Mesh(unitGeometry, unitMaterial);
-                unit.name = `InjectionUnit_0${i + 1}`;
-                unit.position.set(-0.6 + i * 0.6, -0.3, 0);
+            // 创建 7 个注射单元（蓝色方块）
+            const injectionNames = [
+                'mechine_1_Zhushe', 'mechine_1_Zhushe_001', 'mechine_1_Zhushe_002',
+                'mechine_1_Zhushe_003', 'mechine_1_Zhushe_004', 'mechine_1_Zhushe_005',
+                'mechine_1_Zhushe_006'
+            ];
+            injectionNames.forEach((name, i) => {
+                const unit = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.2, 0.2, 0.2),
+                    new THREE.MeshStandardMaterial({ color: 0x0000ff })
+                );
+                unit.name = name;
+                unit.position.set(i * 0.3 - 1, 0.5, 0);
                 machineGroup.add(unit);
-            }
-
-            // 创建 3 个料筒
-            for (let i = 0; i < 3; i++) {
-                const barrelGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.6, 16);
-                const barrelMaterial = new THREE.MeshStandardMaterial({
-                    color: 0x888888,
-                    emissive: 0x00ff00,
-                    emissiveIntensity: 0
-                });
-                const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
-                barrel.name = `Barrel_0${i + 1}`;
-                barrel.position.set(-0.6 + i * 0.6, 0.8, 0);
-                machineGroup.add(barrel);
-            }
-
-            // 创建 3 个模具
-            for (let i = 0; i < 3; i++) {
-                const moldGeometry = new THREE.BoxGeometry(0.4, 0.2, 0.4);
-                const moldMaterial = new THREE.MeshStandardMaterial({
-                    color: 0xaaaaaa,
-                    emissive: 0x00ff00,
-                    emissiveIntensity: 0
-                });
-                const mold = new THREE.Mesh(moldGeometry, moldMaterial);
-                mold.name = `Mold_0${i + 1}`;
-                mold.position.set(-0.6 + i * 0.6, -0.8, 0);
-                machineGroup.add(mold);
-            }
+            });
 
             this.scene.add(machineGroup);
-
-            console.log('[App] 测试模型创建完成');
-            console.log('[App] 提示: 实际项目中应使用 GLTFLoader 加载真实的 3D 模型');
-
-            resolve();
-        });
+            console.log('[App] ✅ 测试模型已加载');
+        }
     }
 
     /**
@@ -238,6 +218,10 @@ class DigitalTwinApp {
         let controller = this.deviceManager.getController(deviceId);
         if (!controller) {
             controller = this.deviceManager.registerDevice(deviceId, telemetry);
+            if (!controller) {
+                console.error(`[App] 设备注册失败: ${deviceId}`);
+                return;
+            }
         }
 
         // 更新 HUD（仅显示当前选中的设备）

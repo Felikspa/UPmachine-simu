@@ -27,6 +27,7 @@ export class MqttClient {
             const url = `ws://${this.config.host}:${this.config.port}/mqtt`;
 
             console.log(`[MQTT] 正在连接到 ${url}...`);
+            console.log(`[MQTT] 客户端ID: ${this.config.clientId}`);
 
             this.client = mqtt.connect(url, {
                 clientId: this.config.clientId,
@@ -36,16 +37,16 @@ export class MqttClient {
             });
 
             this.client.on('connect', () => {
-                console.log('[MQTT] 连接成功');
+                console.log('[MQTT] ✅ 连接成功！');
                 this.connected = true;
 
                 // 订阅主题
                 this.config.topics.forEach(topic => {
                     this.client.subscribe(topic, (err) => {
                         if (!err) {
-                            console.log(`[MQTT] 已订阅主题: ${topic}`);
+                            console.log(`[MQTT] ✅ 已订阅主题: ${topic}`);
                         } else {
-                            console.error(`[MQTT] 订阅失败: ${topic}`, err);
+                            console.error(`[MQTT] ❌ 订阅失败: ${topic}`, err);
                         }
                     });
                 });
@@ -55,21 +56,42 @@ export class MqttClient {
             });
 
             this.client.on('error', (error) => {
-                console.error('[MQTT] 连接错误:', error);
+                console.error('[MQTT] ❌ 连接错误:', error);
+                console.error('[MQTT] 错误类型:', error.name);
+                console.error('[MQTT] 错误消息:', error.message);
                 this.connected = false;
                 this.emit('error', error);
-                reject(error);
+                // 不要reject，让它继续重试
             });
 
             this.client.on('close', () => {
-                console.log('[MQTT] 连接关闭');
+                console.log('[MQTT] 🔌 连接关闭');
                 this.connected = false;
                 this.emit('disconnected');
+            });
+
+            this.client.on('offline', () => {
+                console.log('[MQTT] ⚠️ 客户端离线');
+            });
+
+            this.client.on('reconnect', () => {
+                console.log('[MQTT] 🔄 正在重新连接...');
             });
 
             this.client.on('message', (topic, payload) => {
                 this.handleMessage(topic, payload);
             });
+
+            // 10秒后如果还没连接上，输出诊断信息
+            setTimeout(() => {
+                if (!this.connected) {
+                    console.error('[MQTT] ⚠️ 10秒内未能连接成功');
+                    console.error('[MQTT] 请检查:');
+                    console.error('[MQTT]   1. Mosquitto 是否运行？');
+                    console.error('[MQTT]   2. 8083端口是否开启？ (netstat -an | grep 8083)');
+                    console.error('[MQTT]   3. mosquitto.conf 是否配置了 WebSocket？');
+                }
+            }, 10000);
         });
     }
 

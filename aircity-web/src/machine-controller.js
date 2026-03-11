@@ -8,24 +8,45 @@ export class MachineController {
         this.machineModel = machineModel;
         this.deviceId = deviceId;
 
-        // 查找所有部件 - 对应 UE4 的组件查找
+        // 查找所有部件 - 对应 UE4 的真实组件名称
         this.parts = {
-            // 螺杆部件 (6个) - 旋转 + 轴向移动
-            screws: this.findParts(['Screw_01', 'Screw_02', 'Screw_03', 'Screw_04', 'Screw_05', 'Screw_06']),
-
-            // 注射单元 (14个) - Z轴移动
-            injectionUnits: this.findParts([
-                'InjectionUnit_01', 'InjectionUnit_02', 'InjectionUnit_03', 'InjectionUnit_04',
-                'InjectionUnit_05', 'InjectionUnit_06', 'InjectionUnit_07', 'InjectionUnit_08',
-                'InjectionUnit_09', 'InjectionUnit_10', 'InjectionUnit_11', 'InjectionUnit_12',
-                'InjectionUnit_13', 'InjectionUnit_14'
+            // 螺杆部件 (7个) - 旋转 + 轴向移动
+            // UE4 名称: mechine_1_Zhushezhen, mechine_1_Zhushezhen_001~006
+            screws: this.findParts([
+                'mechine_1_Zhushezhen',
+                'mechine_1_Zhushezhen_001',
+                'mechine_1_Zhushezhen_002',
+                'mechine_1_Zhushezhen_003',
+                'mechine_1_Zhushezhen_004',
+                'mechine_1_Zhushezhen_005',
+                'mechine_1_Zhushezhen_006'
             ]),
 
-            // 料筒 (3个) - 温度可视化
-            barrels: this.findParts(['Barrel_01', 'Barrel_02', 'Barrel_03']),
+            // 注射单元 (7个) - Z轴移动
+            // UE4 名称: mechine_1_Zhushe, mechine_1_Zhushe_001~006
+            injectionUnits: this.findParts([
+                'mechine_1_Zhushe',
+                'mechine_1_Zhushe_001',
+                'mechine_1_Zhushe_002',
+                'mechine_1_Zhushe_003',
+                'mechine_1_Zhushe_004',
+                'mechine_1_Zhushe_005',
+                'mechine_1_Zhushe_006'
+            ]),
 
-            // 模具 (3个) - 温度可视化
-            molds: this.findParts(['Mold_01', 'Mold_02', 'Mold_03'])
+            // 料筒 (使用 polySurface 相关组件) - 温度可视化
+            barrels: this.findParts([
+                'mechine_1_polySurface718',
+                'mechine_1_polySurface719',
+                'mechine_1_polySurface722'
+            ]),
+
+            // 模具 (使用 polySurface 相关组件) - 温度可视化
+            molds: this.findParts([
+                'mechine_1_polySurface723',
+                'mechine_1_polySurface724',
+                'mechine_1_polySurface725'
+            ])
         };
 
         // 当前状态
@@ -51,7 +72,7 @@ export class MachineController {
             if (part) {
                 parts.push(part);
             } else {
-                console.warn(`[MachineController] 未找到部件: ${name}`);
+                console.warn(`[MachineController] ❌ 未找到部件: ${name}`);
             }
         });
         return parts;
